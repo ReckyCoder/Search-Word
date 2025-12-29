@@ -12,15 +12,32 @@
   --font-mono: var(--font-geist-mono);
 }
 
-@media (prefers-color-scheme: dark) {
+/* @media (prefers-color-scheme: dark) {
   :root {
     --background: #0a0a0a;
     --foreground: #ededed;
   }
-}
+} */
+
+@variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
 
 body {
   background: var(--background);
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
+}
+
+.audio-style.rap-container .rap-controls .rap-slider {
+  height: 3px;
+  border-radius: 4px;
+}
+
+.audio-style.rap-container .rap-pp-button svg {
+  width: 16px;
+  height: 16px;
+}
+
+.audio-style.rap-container .rap-volume .rap-volume-btn svg {
+  width: 16px;
+  height: 16px;
 }
