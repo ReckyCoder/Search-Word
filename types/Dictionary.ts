@@ -33,3 +33,5 @@ export type DictionaryProps = {
         message?: undefined;
     }
 }
+
+export type ModalMode = "favorites" | "lastSearches" | null

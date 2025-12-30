@@ -26,14 +26,6 @@ export default function Header() {
                 <SunIcon className="w-8 cursor-pointer text-white" onClick={() => setTheme('light')}/>
             )
             }
-            {/* <select title='theme switcher'
-            value={theme}
-            onChange={(e) => setTheme(e.target.value)}
-            >
-            <option value="system">System</option>
-            <option value="light">Light</option>
-            <option value="dark">Dark</option>
-            </select> */}
         </div>
     )
 }

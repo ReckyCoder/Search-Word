@@ -1,7 +1,7 @@
 'use client';
 
 import Link from "next/link";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { ClipLoader } from "react-spinners";
 import type { DictionaryProps } from "@/types/Dictionary";
 import AudioWord from "./AudioWord";
@@ -10,13 +10,23 @@ import { StarIcon as NotFavorite } from "@heroicons/react/24/outline";
 import { StarIcon as Favorite } from "@heroicons/react/24/solid";
 import { LinkIcon } from "@heroicons/react/24/outline";
 import { returnFirstLetterCapitalized } from "@/lib/FirstLetterCapital";
+import { DictionarySkeleton } from "./SkeletonLoader";
+import { DictionaryError } from "./DictionaryError";
 
-export default function Dictionary({ dictionaryEntry }:DictionaryProps) {
+type DictionaryPropsSearch = DictionaryProps & {
+    addSearch: (searchInput: string) => void;
+}
+
+export default function Dictionary({ dictionaryEntry, addSearch }: DictionaryPropsSearch) {
 
     const [activeAudio, setActiveAudio] = useState<string | null>(null);
 
     const toggleFavorite = useFavorite((state) => state.toggleFavorite);
     const isFavorite = useFavorite((state) => state.isFavorite(dictionaryEntry.data?.word))
+
+    useEffect(() => {
+        if(dictionaryEntry.status === "success" && dictionaryEntry.data) addSearch(dictionaryEntry.data.word); 
+    }, [dictionaryEntry.status, dictionaryEntry.data, addSearch]);
 
     const renderTypeOfEntry = () => {
         switch (dictionaryEntry.status) {
@@ -26,12 +36,12 @@ export default function Dictionary({ dictionaryEntry }:DictionaryProps) {
                     <p>If you want a extend description, we have a lot information about you search.</p>
                 </div>
             case "loading":
-                return <ClipLoader color="#4f39f6" className="mx-auto"/>
+                return <DictionarySkeleton />
             case "success":
                 return (
                     <>
                         <div className="flex items-center gap-x-2">
-                            <h1 className="text-left text-5xl font-bold">{dictionaryEntry.data?.word}</h1>
+                            <h1 className="text-left text-5xl font-bold">{returnFirstLetterCapitalized(dictionaryEntry.data!.word)}</h1>
                             {isFavorite ? 
                             (
                                 <Favorite onClick={() => toggleFavorite(dictionaryEntry.data!.word)} className="w-8 text-amber-300 cursor-pointer hover:text-amber-400 transition-all hover:scale-105"/>
@@ -48,7 +58,7 @@ export default function Dictionary({ dictionaryEntry }:DictionaryProps) {
                         </div>
                         {
                             dictionaryEntry.data?.phonetics.map((phonetic, index) => (
-                                <div className="flex" key={`${phonetic.text} - ${index} ?? ${phonetic.audio}`}>
+                                <div className="flex" key={`${phonetic.text}-${phonetic.audio}-${index}`}>
                                     {phonetic.text ? 
                                     (
                                         <AudioWord 
@@ -77,13 +87,13 @@ export default function Dictionary({ dictionaryEntry }:DictionaryProps) {
                                                 </div>
                                                 <div className="flex flex-col gap-y-5">
                                                     {meaning.definitions.map((def, defIndex) => (
-                                                        <div className="text-left" key={`${def.definition} - ${defIndex}`}>
+                                                        <div className="text-left" key={`${def.definition}-${defIndex}`}>
                                                             <p className="before:content-['•'] before:text-indigo-500"> {def.definition}</p>
-                                                            {def.synonims?.map((synonym) => (
-                                                                <p className="text-slate-300" key={synonym}>Synonym: <span className="bg-blue-500 text-white">{synonym}</span></p>
+                                                            {def.synonims?.map((synonym, i) => (
+                                                                <p className="text-slate-300" key={`${meaning.partOfSpeech}-syn-${synonym}-${i}`}>Synonym: <span className="bg-blue-500 text-white">{synonym}</span></p>
                                                             ))}
-                                                            {def.antonyms?.map((antonym) => (
-                                                                <p className="text-slate-300" key={antonym}>Antonym: <span className="bg-blue-500 text-white">{antonym}</span></p>
+                                                            {def.antonyms?.map((antonym, i) => (
+                                                                <p className="text-slate-300" key={`${meaning.partOfSpeech}-syn-${antonym}-${i}`}>Antonym: <span className="bg-blue-500 text-white">{antonym}</span></p>
                                                             ))}
                                                             {def.example && <p className="font-thin mt-1 skew-x-4">- "{def.example}"</p>}
                                                         </div>
@@ -102,8 +112,8 @@ export default function Dictionary({ dictionaryEntry }:DictionaryProps) {
                                                 <h2 className="text-slate-600 dark:text-slate-400">Synonims</h2>
                                                 <div className="flex flex-wrap gap-x-2 gap-y-2">
                                                     {
-                                                        meaning.synonyms.map((synonym) => (
-                                                            <p className="bg-indigo-600 text-white rounded-2xl px-2" key={synonym}>{synonym}</p>
+                                                        meaning.synonyms.map((synonym, i) => (
+                                                            <p className="bg-indigo-600 text-white rounded-2xl px-2" key={`${meaning.partOfSpeech}-syn-${synonym}-${i}`}>{synonym}</p>
                                                         ))
                                                     }
                                                 </div>
@@ -120,8 +130,8 @@ export default function Dictionary({ dictionaryEntry }:DictionaryProps) {
                                             <div className="flex gap-x-2 mt-2">
                                                 <h2 className="text-slate-600 dark:text-slate-400">Antonyms</h2>
                                                 {
-                                                    meaning.antonyms.map((antonym) => (
-                                                        <p className="bg-purple-600 text-white px-2 rounded-2xl" key={antonym}>{antonym}</p>
+                                                    meaning.antonyms.map((antonym, i) => (
+                                                        <p className="bg-purple-600 text-white px-2 rounded-2xl" key={`${meaning.partOfSpeech}-syn-${antonym}-${i}`}>{antonym}</p>
                                                     ))
                                                 }
                                             </div>
@@ -154,7 +164,7 @@ export default function Dictionary({ dictionaryEntry }:DictionaryProps) {
                     </>
                 )
             case "error":
-                return <p>{dictionaryEntry.message}</p>
+                return <DictionaryError word={dictionaryEntry.message}/>
         }
     }
     

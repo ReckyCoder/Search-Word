@@ -13,7 +13,8 @@ type FavoritesState = {
 
 export const useFavorite = create<FavoritesState>()(
     devtools(
-        persist((set, get) => ({
+        persist(
+            (set, get) => ({
         favorites: [],
 
         addFavorite: (wordFavorite) => 
