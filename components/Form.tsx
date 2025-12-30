@@ -20,7 +20,6 @@ export default function Form() {
 
     const lastSearches = useLastSearch((state) => state.lastSearch);
     const addSearch = useLastSearch((state) => state.addSearch);
-    const cleanHistoric = useLastSearch((state) => state.cleanHistoric);
 
     const [wordAux, setWordAux] = useState("");
     const [word, setWord] = useState("");
@@ -136,7 +135,6 @@ export default function Form() {
                 toggleFavorite={toggleFavorite}
                 setWordRequestFavorite={setWordRequestFavorite}
                 lastSearches={lastSearches}
-                cleanHistoric={cleanHistoric}
             />
         </>
     )

@@ -2,7 +2,9 @@ import { Dialog, DialogBackdrop, DialogPanel, DialogTitle } from '@headlessui/re
 import { StarIcon, XMarkIcon } from '@heroicons/react/24/solid'
 import type { Dispatch, SetStateAction } from 'react'
 import { returnFirstLetterCapitalized } from '@/lib/FirstLetterCapital'
-import { ModalMode } from '@/types/Dictionary'
+import type { ModalMode } from '@/types/Dictionary'
+import { useFavorite } from '@/store/favorites/useFavorite'
+import { useLastSearch } from '@/store/lastSearch/useLastSearch'
 
 type ModalProps = {
     isOpen: boolean,
@@ -10,15 +12,16 @@ type ModalProps = {
     favorites?: string[],
     toggleFavorite?: (wordFavorite: string) => void;
     setWordRequestFavorite?: (word: string) => void;
-    cleanHistoric?: () => void;
     lastSearches?: string[];
     modalMode: ModalMode;
 }
 
-export function Modal({isOpen, setIsOpen, favorites, toggleFavorite, setWordRequestFavorite, lastSearches, cleanHistoric, modalMode} : ModalProps) {
+export function Modal({isOpen, setIsOpen, favorites, toggleFavorite, setWordRequestFavorite, lastSearches, modalMode} : ModalProps) {
+
+    const removeAllFavorites = useFavorite((state) => state.removeAllFavorites);
+    const cleanHistoric = useLastSearch((state) => state.cleanHistoric);
 
     return (
-        
         <Dialog open={isOpen} onClose={setIsOpen} className="relative z-10">
             <DialogBackdrop
             transition
@@ -143,7 +146,7 @@ export function Modal({isOpen, setIsOpen, favorites, toggleFavorite, setWordRequ
                             <button
                                 type="button"
                                 onClick={() => {
-                                    cleanHistoric?.()
+                                    cleanHistoric()
                                     setIsOpen(false)
                                 }}
                                 className="inline-flex cursor-pointer w-full justify-center rounded-md bg-red-500 px-3 py-2 text-sm font-semibold text-white hover:bg-red-400 sm:ml-3 sm:w-auto"
@@ -153,7 +156,18 @@ export function Modal({isOpen, setIsOpen, favorites, toggleFavorite, setWordRequ
                         ) 
                         : 
                         (
-                            null
+                            (modalMode === "favorites" && (
+                                <button
+                                    type="button"
+                                    onClick={() => {
+                                        removeAllFavorites()
+                                        setIsOpen(false)
+                                    }}
+                                    className="inline-flex cursor-pointer w-full justify-center rounded-md bg-red-500 px-3 py-2 text-sm font-semibold text-white hover:bg-red-400 sm:ml-3 sm:w-auto"
+                                    >
+                                    Remove
+                                </button>
+                            ))
                         )
                         }
                     </div>

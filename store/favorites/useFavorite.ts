@@ -6,6 +6,7 @@ type FavoritesState = {
   favorites: string[];
   addFavorite: (wordFavorite: string) => void;
   removeFavorite: (wordFavorite: string) => void;
+  removeAllFavorites: () => void;
   toggleFavorite: (wordFavorite: string) => void;
   isFavorite: (wordFavorite: string | undefined) => boolean;
 };
@@ -24,7 +25,10 @@ export const useFavorite = create<FavoritesState>()(
             set((prevState) => ({
                 favorites: prevState.favorites.filter(word => word !== wordFavorite),
             })),
-
+        removeAllFavorites: () => 
+            set(() => ({
+                favorites: []
+            })),
         toggleFavorite: (wordFavorite) => {
             const exists = get().favorites.find(word => word === wordFavorite);
 
